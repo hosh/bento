@@ -4,14 +4,51 @@
 PKGSRC=cd
 
 date > /etc/vagrant_box_build_time
+loadkeys us
 
 # launch automated install
-su -c 'aif -p automatic -c aif.cfg'
+#su -c 'aif -p automatic -c aif.cfg'
+
+# Since AIF is no longer maintained, we have to do things the hard way:
+# AIF uses sfdisk and parses a partition screen. It translates to:
+
+sfdisk -D /dev/sda -uM <<EOF
+,100,,*
+,512,S
+,;,,
+EOF
+
+# Translation:
+# /dev/sda1 - 100 MiB ext2 boot partition, set as a Linux partition (83)
+# /dev/sda2 - 512 MiB swap partition (marked type 84)
+# /dev/sda3 - Rest of the harddrive, set as a Linux partition (83)
+# See: http://linux.die.net/man/8/sfdisk "Input Format"
+
+mkfs.ext2 /dev/sda1 -L /boot
+mkswap /dev/sda2
+swapon /dev/sda2
+mkfs.ext3 /dev/sda3 -L /
+
+# Mount the newly created disks
+mkdir -p /mnt
+mount /dev/sda3 /mnt
+mkdir -p /mnt/boot
+mount /dev/sda1 /mnt/boot
+
+# Bootstrap packages
+pacstrap /mnt base base-devel
+
+# Install Arch Linux bootloader
+arch-chroot /mnt pacman -S --noconfirm grub-bios
+
+# Generate fstab
+genfstab -p /mnt >> /mnt/etc/fstab
 
 # copy over the vbox version file
 /bin/cp -f /root/.vbox_version /mnt/root/.vbox_version
 
 # chroot into the new system
+# Start The World:
 mount -o bind /dev /mnt/dev
 mount -o bind /sys /mnt/sys
 mount -t proc none /mnt/proc

@@ -1,10 +1,10 @@
-Veewee::Definition.declare({
-  :cpu_count => '1', :memory_size=> '256', 
+Veewee::Session.declare({
+  :cpu_count => '1', :memory_size=> '256',
   :disk_size => '10140', :disk_format => 'VDI',:hostiocache => 'off',
   :os_type_id => 'ArchLinux_64',
-  :iso_file => "archlinux-2010.05-core-x86_64.iso",
-  :iso_src => "http://archlinux.mirror.kangaroot.net/iso/2010.05/archlinux-2010.05-core-x86_64.iso",
-  :iso_md5 => "9e9057702af5826a3b924233bf44fe66",
+  :iso_file => "archlinux-2012.10.06-dual.iso",
+  :iso_src => "archlinux-2012.10.06-dual.iso",
+  :iso_md5 => "aefd90da1ee49c745101179f50afa783",
   :iso_download_timeout => "1000",
   :boot_wait => "5", :boot_cmd_sequence => [
     '<Enter>',
